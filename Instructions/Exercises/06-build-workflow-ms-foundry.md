@@ -40,7 +40,7 @@ In this exercise, you'll use the Microsoft Foundry portal to create a workflow. 
 
 This exercise should take approximately **30** minutes to complete.
 
-> **Note**: The workflow builder in Microsoft Foundry is currently in preview. You may experience some unexpected behavior, warnings, or errors.
+> **Note**: The workflow builder in Microsoft Foundry is currently in preview. You may experience some unexpected behavior, warnings, or errors. If you encounter any issues that block your progress, you may need to start over with a new project and workflow.
 
 ## Create a Foundry project
 
@@ -62,13 +62,17 @@ Let's start by creating a Foundry project.
 
     Wait a few moments for the project to be created. The new Foundry portal home page should appear with your project selected.
 
+1. Close the **Welcome to the new Microsoft Foundry** dialog if it appears.
+
+    The dialog may prompt you to create an agent which is not necessary at this time. Agents will be created in a later step.
+
 ## Create a customer support triage workflow
 
 In this section, you'll create a workflow that helps triage and respond to customer support requests for a fictional company called ContosoPay. The workflow uses two AI agents that classify and respond to support tickets.
 
 1. On the Foundry portal home page, select **Build** from the toolbar menu.
 
-1. On the left-hand menu, select **Workflows**.
+1. On the left-hand menu, select **Agents** then select the **Workflows** tab.
 
 1. In the upper right corner, select **Create** > **Blank workflow** to create a new blank workflow.
 
@@ -436,7 +440,6 @@ Now you're ready to create a project that invokes a workflow. Let's get started!
    # Add references
    from azure.identity import DefaultAzureCredential
    from azure.ai.projects import AIProjectClient
-   from azure.ai.projects.models import ItemType
     ```
 
 1. Note that code to load the project endpoint and model name from your environment variables has been provided.
@@ -461,8 +464,7 @@ Now you're ready to create a project that invokes a workflow. Let's get started!
     ```python
    # Specify the workflow
     workflow = {
-        "name": "ContosoPay-Customer-Support-Triage",
-        "version": "1",
+        "name": "ContosoPay-Customer-Support-Triage"
     }
     ```
 
@@ -477,10 +479,9 @@ Now you're ready to create a project that invokes a workflow. Let's get started!
 
     stream = openai_client.responses.create(
         conversation=conversation.id,
-        extra_body={"agent": {"name": workflow["name"], "type": "agent_reference"}},
+        extra_body={"agent_reference" : {"name" : workflow["name"], "type": "agent_reference"}},
         input="Start",
         stream=True,
-        metadata={"x-ms-debug-mode-enabled": "1"},
     )
     ```
 
@@ -490,16 +491,11 @@ Now you're ready to create a project that invokes a workflow. Let's get started!
 
     ```python
     # Process events from the workflow run
-    for event in stream:
+   for event in stream:
         if (event.type == "response.completed"):
             print("\nResponse completed:")
-            for message in event.response.output:
-                if message.content:
-                    for content_item in message.content:
-                        if content_item.type == 'output_text':
-                            print(content_item.text)
-        if (event.type == "response.output_item.done") and event.item.type == ItemType.WORKFLOW_ACTION:
-            print(f"item action ID '{event.item.action_id}' is '{event.item.status}' (previous action ID: '{event.item.previous_action_id}')")
+            response = openai_client.responses.retrieve(event.response.id)
+            print(f"{response.output_text}")
     ```
 
 1. Find the comment **Clean up resources**, and enter the following code to delete the conversation when it is longer required:
@@ -527,21 +523,13 @@ Now you're ready to run your code and watch your AI agents collaborate.
 1. When the workflow completes, you should see some output similar to the following:
 
     ```output
-    Created conversation (id: {id})
-    item action ID 'action-{id}' is 'completed' (previous action ID: 'trigger_id')
-    item action ID 'action-{id}' is 'completed' (previous action ID: 'action-{id}')
-    item action ID 'action-{id}' is 'completed' (previous action ID: 'action-{id}_Start')
-    ...
-
     Response completed:
-    ...
     Current Ticket:
-    I was charged twice for the same invoice last Friday and my customer is also seeing two receipts. Can someone fix this?
-    {"customer_issue":"I was charged twice for the same invoice last Friday and my customer is also seeing two receipts. Can someone fix this?","category":"Billing","confidence":1}
-    Escalation required
+    The API returns a 403 error when creating invoices, but our API key hasn't changed.{"customer_issue":"API returns a 403 error when creating invoices, API key unchanged.","category":"Technical","confidence":1}Thank you for contacting us about the 403 error when creating invoices with the API. This error typically relates to permission issues. Please ensure your API key has the necessary permissions for invoice creation and that the endpoint URL is correct. If the issue persists, try regenerating the API key and updating it in your application.
+    ...
     ```
 
-    In the output, you can see the how the workflow completes each step, including the classification of each ticket and the recommended response or escalation. Great work!
+    In the output, you can see the how the workflow completes each support ticket, including the classification of each ticket and the recommended response or escalation. Great work!
 
 1. When you're finished, enter `deactivate` in the terminal to exit the Python virtual environment.
 
