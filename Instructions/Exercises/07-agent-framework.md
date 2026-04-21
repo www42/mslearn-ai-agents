@@ -39,8 +39,6 @@ As a developer, you may spend some time working in the Foundry portal; but youâ€
 4. After installing the extension, select its icon in the sidebar to open the Foundry Toolkit view. 
 
     You should be prompted to sign in to your Azure account if you haven't already.
-
-     
    
 5. Select **Create Project** under **Microsoft Foundry Resources**.
 
