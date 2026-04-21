@@ -239,6 +239,9 @@ In this task, you'll connect to a remote MCP server, prepare the AI agent, and r
 Now you're ready to run the application and see how the agent uses the MCP tool to retrieve information from the Microsoft Learn Docs remote MCP server.
 
 1. In the integrated terminal, enter the following command to run the application:
+    ```
+    az login
+    ```
 
     ```
    python agent.py

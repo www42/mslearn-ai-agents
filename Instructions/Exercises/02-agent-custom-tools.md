@@ -403,6 +403,9 @@ Now that you've created the agent with the function tools, you can send messages
 ## Run the agent application
 
 1. In the integrated terminal, enter the following command to run the application:
+    ```
+    az login
+    ```
 
     ```
    python agent.py

@@ -102,6 +102,8 @@ Now that you have an agent created, let's configure it with instructions and add
 
     > **Note**: This CSV file contains simulated system metrics (CPU, memory, disk usage) over time that the agent can analyze.
 
+1. Save the agent.
+
 ## Test your agent
 
 Let's test the agent to see how it responds using the grounding data.
