@@ -36,6 +36,8 @@ As a developer, you may spend some time working in the Foundry portal; but youâ€
 
 3. Search the extensions marketplace for the `Foundry Toolkit` extension from Microsoft and select **Install**.
 
+    > **Note**: The extension is currently listed as **Foundry Toolkit**, but some VS Code labels, commands, or older screenshots may still refer to **AI Toolkit**. In this lab, treat those names as referring to the same extension experience.
+
 4. After installing the extension, select its icon in the sidebar to open the Foundry Toolkit view. 
 
     You should be prompted to sign in to your Azure account if you haven't already.
