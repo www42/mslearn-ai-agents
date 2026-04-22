@@ -144,21 +144,21 @@ Great! You've created an agent with grounding data, file search, and code interp
 
 ## Interact with your agent using VS Code
 
-As a developer, you may spend some time working in the Foundry portal; but you’re also likely to spend a lot of time in Visual Studio Code. The Foundry Toolkit extension provides a convenient way to work with Foundry project resources without leaving the development environment.
+As a developer, you may spend some time working in the Foundry portal; but you’re also likely to spend a lot of time in Visual Studio Code. The Foundry Toolkit for VS Code extension provides a convenient way to work with Foundry project resources without leaving the development environment.
 
 ### Install and configure the VS Code extension
 
-If you already have installed the extension for Foundry Toolkit, you can skip this section.
+If you already have installed the Foundry Toolkit extension, you can skip this section.
 
 1. Open Visual Studio Code.
 
 2. Select **Extensions** from the left pane (or press **Ctrl+Shift+X**).
 
-3. Search the extensions marketplace for the `Foundry Toolkit` extension from Microsoft and select **Install**.
+3. Search the extensions marketplace for the `Foundry Toolkit for VS Code` extension from Microsoft and select **Install**.
 
-    > **Note**: The extension is currently listed as **Foundry Toolkit**, but some VS Code labels, commands, or older screenshots may still refer to **AI Toolkit**. In this lab, treat those names as referring to the same extension experience.
+    Installing the Foundry Toolkit Extension will add the AI Toolkit extension to VS Code.
 
-4. After installing the extension, select its icon in the sidebar to open the Foundry Toolkit view. 
+4. After installing the extension, select the AI Toolkit icon in the sidebar. 
 
     You should be prompted to sign in to your Azure account if you haven't already.
 
@@ -166,11 +166,11 @@ If you already have installed the extension for Foundry Toolkit, you can skip th
 
 Before writing any code, you can interact with your agent directly in the extension interface.
 
-1. In **My Resources**, under **Microsoft Foundry** select the three horizontal bar icon to select your default project.
+1. Under **Microsoft Foundry Resources**, choose **Set Default Project**
 
-    If a default project is already active, the project name will appear next to the **Microsoft Foundry** section. You can select a different project by right-clicking on the project and selecting **Switch Default Project in Azure Extension**.
+    If a default project is already active, the project name will appear in the resources list. You can select a different project by selecting the same **Select project** icon.
 
-2. Expand the **Microsoft Foundry** section. Under **Prompt Agents**, you should see the `it-support-agent` you created in the portal. Select the agent name to open the Agent Builder interface.
+2. Expand the project section. Under **Prompt Agents**, you should see the `it-support-agent` you created in the portal. Select the agent name to open the Agent Builder interface.
 
     The agent playground will appear in the Agent Builder interface, allowing you to interact with the agent and configure its settings without leaving VS Code.
 
@@ -411,6 +411,8 @@ Now let's create a client application that interacts with your agent programmati
     if __name__ == "__main__":
         main()
     ```
+    
+1. Save the `agent_with_functions.py` file (**Ctrl+S** or **File > Save**).
 
 ### Configure environment and run the application
 

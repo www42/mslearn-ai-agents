@@ -28,9 +28,9 @@ Before starting this exercise, ensure you have:
 
 > \* Python 3.13 is available, but some dependencies are not yet compiled for that release. The lab has been successfully tested with Python 3.13.12.
 
-## Create a Foundry project with the Foundry Toolkit VS Code extension
+## Create a Foundry project with the Foundry Toolkit for VS Code extension
 
-As a developer, you may spend some time working in the Foundry portal; but youâ€™re also likely to spend a lot of time in Visual Studio Code. The Foundry Toolkit extension provides a convenient way to work with Foundry project resources without leaving the development environment.
+As a developer, you may spend some time working in the Foundry portal; but youâ€™re also likely to spend a lot of time in Visual Studio Code. The Foundry Toolkit for VS Code extension provides a convenient way to work with Foundry project resources without leaving the development environment.
 
 1. Open Visual Studio Code.
 
@@ -46,7 +46,7 @@ As a developer, you may spend some time working in the Foundry portal; but youâ€
 
 5. Select **Create Project** under **Microsoft Foundry Resources**.
 
-    If a default project is already active, the project name will appear under **My Resources**. You can create a new project by right-clicking on the active project and selecting **Switch Default Project**.
+    If a default project is already active, the project name will appear under **My Resources**. You can create a new project by right-clicking on the active project and selecting **Switch Default Project in Azure Extension**.
 
 6. Select your Azure subscription and resource group, then enter a name for your Foundry project to create a new project for this exercise.
 
@@ -56,7 +56,7 @@ As a developer, you may spend some time working in the Foundry portal; but youâ€
 
 At the core of any generative AI project, thereâ€™s at least one generative AI model. In this task, you'll deploy a model from the Model Catalog to use with your agent.
 
-1. When the "Project deployed successfully" popup appears, select the **Deploy a model** button. This opens the Model Catalog.
+1. When the "Project deployed successfully" popup appears, select the **Deploy a new model** button. This opens the Model Catalog.
 
    > **Tip**: You can also access the Model Catalog by selecting the **+** icon next to **Models** in the Resources section, or by pressing **F1** and running the command **AI Toolkit: Show model catalog**.
 
