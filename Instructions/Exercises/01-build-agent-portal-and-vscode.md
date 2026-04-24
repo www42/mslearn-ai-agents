@@ -158,6 +158,8 @@ If you already have installed the Foundry Toolkit extension, you can skip this s
 
     Installing the Foundry Toolkit Extension will add the AI Toolkit extension to VS Code.
 
+    > **Note**: The extension is currently listed as **Foundry Toolkit**, but some VS Code labels, commands, or older screenshots may still refer to **AI Toolkit**. In this lab, treat those names as referring to the same extension experience.
+
 4. After installing the extension, select the AI Toolkit icon in the sidebar. 
 
     You should be prompted to sign in to your Azure account if you haven't already.
