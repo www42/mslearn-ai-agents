@@ -26,17 +26,19 @@ Before starting this exercise, ensure you have:
 
 > \* Python 3.13 is available, but some dependencies are not yet compiled for that release. The lab has been successfully tested with Python 3.13.12.
 
-## Create a Foundry project with the AI Toolkit VS Code extension
+## Create a Foundry project with the Foundry Toolkit VS Code extension
 
-As a developer, you may spend some time working in the Foundry portal; but you’re also likely to spend a lot of time in Visual Studio Code. The AI Toolkit extension provides a convenient way to work with Foundry project resources without leaving the development environment.
+As a developer, you may spend some time working in the Foundry portal; but you’re also likely to spend a lot of time in Visual Studio Code. The Foundry Toolkit extension provides a convenient way to work with Foundry project resources without leaving the development environment.
 
 1. Open Visual Studio Code.
 
 2. Select **Extensions** from the left pane (or press **Ctrl+Shift+X**).
 
-3. Search the extensions marketplace for the `AI Toolkit` extension from Microsoft and select **Install**.
+3. Search the extensions marketplace for the `Foundry Toolkit` extension from Microsoft and select **Install**.
 
-4. After installing the extension, select its icon in the sidebar to open the AI Toolkit view. 
+    > **Note**: The extension is currently listed as **Foundry Toolkit**, but some VS Code labels, commands, or older screenshots may still refer to **AI Toolkit**. In this lab, treat those names as referring to the same extension experience.
+
+4. After installing the extension, select its icon in the sidebar to open the Foundry Toolkit view. 
 
     You should be prompted to sign in to your Azure account if you haven't already.
    
@@ -46,7 +48,7 @@ As a developer, you may spend some time working in the Foundry portal; but you�
 
 6. Select your Azure subscription and resource group, then enter a name for your Foundry project to create a new project for this exercise.
 
-    When the deployment is complete, you should see the project appear in the AI Toolkit pane as the default project.
+    When the deployment is complete, you should see the project appear in the Foundry Toolkit pane as the default project.
 
 ## Deploy a model
 
@@ -72,7 +74,7 @@ At the core of any generative AI project, there’s at least one generative AI m
 
 6. Right-click the name of the project deployment and select **Copy Project Endpoint**. You'll need this URL to connect your agent to the Foundry project in the next steps.
 
-    ![Screenshot of copying the project endpoint in the AI Toolkit VS Code extension.](../Media/vs-code-endpoint.png)
+    ![Screenshot of copying the project endpoint in the Foundry Toolkit VS Code extension.](../Media/vs-code-endpoint.png)
 
 ## Clone the starter code repository
 
@@ -106,7 +108,7 @@ For this exercise, you'll use starter code that will help you connect to your Fo
     pip install -r requirements.txt
     ```
 
-1. Open the **.env** file, replace the **your_project_endpoint** placeholder with the endpoint for your project (copied from the project deployment resource in the AI Toolkit extension) and ensure that the MODEL_DEPLOYMENT_NAME variable is set to your model deployment name. Use **Ctrl+S** to save the file after making these changes.
+1. Open the **.env** file, replace the **your_project_endpoint** placeholder with the endpoint for your project (copied from the project deployment resource in the Foundry Toolkit extension) and ensure that the MODEL_DEPLOYMENT_NAME variable is set to your model deployment name. Use **Ctrl+S** to save the file after making these changes.
 
 Now you're ready to create an AI agent that uses a custom tool to process expenses data.
 

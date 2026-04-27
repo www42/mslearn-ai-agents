@@ -1,7 +1,7 @@
 ---
 lab:
     title: 'Build AI agents with portal and VS Code'
-    description: 'Create an AI agent using both Microsoft Foundry portal and the AI Toolkit VS Code extension with built-in tools like file search and code interpreter.'
+    description: 'Create an AI agent using both Microsoft Foundry portal and the Foundry Toolkit VS Code extension with built-in tools like file search and code interpreter.'
     level: 300
     duration: 45
     islab: true
@@ -9,7 +9,7 @@ lab:
 
 # Build AI agents with portal and VS Code
 
-In this exercise, you'll build a complete AI agent solution using both the Microsoft Foundry portal and the AI Toolkit VS Code extension. You'll start by creating a basic agent in the portal with grounding data and built-in tools, then interact with it programmatically using VS Code to use advanced capabilities like code interpreter for data analysis.
+In this exercise, you'll build a complete AI agent solution using both the Microsoft Foundry portal and the Foundry Toolkit VS Code extension. You'll start by creating a basic agent in the portal with grounding data and built-in tools, then interact with it programmatically using VS Code to use advanced capabilities like code interpreter for data analysis.
 
 This exercise takes approximately **45** minutes.
 
@@ -102,6 +102,8 @@ Now that you have an agent created, let's configure it with instructions and add
 
     > **Note**: This CSV file contains simulated system metrics (CPU, memory, disk usage) over time that the agent can analyze.
 
+1. Save the agent.
+
 ## Test your agent
 
 Let's test the agent to see how it responds using the grounding data.
@@ -156,6 +158,8 @@ If you already have installed the Foundry Toolkit extension, you can skip this s
 
     Installing the Foundry Toolkit Extension will add the AI Toolkit extension to VS Code.
 
+    > **Note**: The extension is currently listed as **Foundry Toolkit**, but some VS Code labels, commands, or older screenshots may still refer to **AI Toolkit**. In this lab, treat those names as referring to the same extension experience.
+
 4. After installing the extension, select the AI Toolkit icon in the sidebar. 
 
     You should be prompted to sign in to your Azure account if you haven't already.
@@ -202,32 +206,98 @@ Now let's create a client application that interacts with your agent programmati
 
 1. Once the repository opens, select **File > Open Folder** and navigate to `mslearn-ai-agents/Labfiles/01-build-agent-portal-and-vscode/Python`, then choose **Select Folder**.
 
-1. In the Explorer pane, open the `agent_with_functions.py` file. You'll see it's currently empty.
+1. In the Explorer pane, open the `agent_with_functions.py` file. If the file is empty, replace its contents with the following code.
 
-1. Add the following code to the file:
+1. Use the following code:
 
     ```python
+    import base64
     import os
+    from pathlib import Path
+
     from azure.ai.projects import AIProjectClient
     from azure.identity import DefaultAzureCredential
-    import base64
-    from pathlib import Path
     from dotenv import load_dotenv
     
     
+    OUTPUT_DIR = Path("agent_outputs")
+    
+    
+    def get_output_path(filename):
+        """Create a unique path for generated files."""
+        OUTPUT_DIR.mkdir(exist_ok=True)
+        file_name = Path(filename).name
+        stem = Path(file_name).stem or "output"
+        suffix = Path(file_name).suffix
+        output_path = OUTPUT_DIR / file_name
+
+        counter = 1
+        while output_path.exists():
+            output_path = OUTPUT_DIR / f"{stem}_{counter}{suffix}"
+            counter += 1
+
+        return output_path
+
+
+    def save_bytes(file_bytes, filename):
+        """Save binary content to a local file."""
+        output_path = get_output_path(filename)
+        with open(output_path, "wb") as file_handle:
+            file_handle.write(file_bytes)
+        return output_path
+
+
     def save_image(image_data, filename):
         """Save base64 image data to a file."""
-        output_dir = Path("agent_outputs")
-        output_dir.mkdir(exist_ok=True)
-        
-        filepath = output_dir / filename
-        
-        # Decode and save the image
-        image_bytes = base64.b64decode(image_data)
-        with open(filepath, 'wb') as f:
-            f.write(image_bytes)
-        
-        return str(filepath)
+        return save_bytes(base64.b64decode(image_data), filename)
+
+
+    def download_container_file(openai_client, annotation, downloaded_files):
+        """Download a cited container file once and return its local path."""
+        cache_key = (annotation.container_id, annotation.file_id)
+        if cache_key in downloaded_files:
+            return downloaded_files[cache_key]
+
+        file_content = openai_client.containers.files.content.retrieve(
+            file_id=annotation.file_id,
+            container_id=annotation.container_id,
+        )
+        output_path = save_bytes(
+            file_content.read(),
+            annotation.filename or f"{annotation.file_id}.bin",
+        )
+        downloaded_files[cache_key] = output_path
+        return output_path
+
+
+    def format_output_text(content_item, openai_client, downloaded_files):
+        """Replace sandbox file citations with local file paths."""
+        text = content_item.text or ""
+        replacements = []
+        referenced_files = set()
+
+        for annotation in content_item.annotations or []:
+            if getattr(annotation, "type", "") != "container_file_citation":
+                continue
+
+            output_path = download_container_file(openai_client, annotation, downloaded_files)
+            replacement_text = f"{annotation.filename} (saved to {output_path})"
+            referenced_files.add(output_path)
+
+            start_index = getattr(annotation, "start_index", None)
+            end_index = getattr(annotation, "end_index", None)
+            if start_index is not None and end_index is not None:
+                replacements.append((start_index, end_index, replacement_text))
+                continue
+
+            annotated_text = getattr(annotation, "text", "")
+            if annotated_text:
+                text = text.replace(annotated_text, replacement_text)
+
+        for start_index, end_index, replacement_text in sorted(replacements, reverse=True):
+            text = f"{text[:start_index]}{replacement_text}{text[end_index:]}"
+
+        return text, referenced_files
     
     
     def main():
@@ -290,60 +360,55 @@ Now let's create a client application that interacts with your agent programmati
                 extra_body={"agent_reference": {"name": agent.name, "type": "agent_reference"}},
                 input=""
             )
-            
-            # Display response
-            if hasattr(response, 'output_text') and response.output_text:
-                print(f"\nAgent: {response.output_text}\n")
-            elif hasattr(response, 'output') and response.output:
-                # Extract text from output items
-                image_count = 0
+
+            # Display response and save any generated files locally
+            handled_output = False
+            downloaded_files = {}
+            referenced_files = set()
+            image_count = 0
+
+            if hasattr(response, "output") and response.output:
                 for item in response.output:
-                    if hasattr(item, 'text') and item.text:
+                    item_type = getattr(item, "type", "")
+
+                    if item_type == "message" and getattr(item, "content", None):
+                        for content_item in item.content:
+                            if getattr(content_item, "type", "") != "output_text":
+                                continue
+
+                            formatted_text, message_files = format_output_text(
+                                content_item,
+                                openai_client,
+                                downloaded_files,
+                            )
+                            referenced_files.update(message_files)
+
+                            if formatted_text:
+                                print(f"\nAgent: {formatted_text}\n")
+                                handled_output = True
+
+                    elif hasattr(item, "text") and item.text:
                         print(f"\nAgent: {item.text}\n")
-                    elif hasattr(item, 'type'):
-                        # Handle other output types like images from code interpreter
-                        if item.type == 'image':
-                            image_count += 1
-                            filename = f"chart_{image_count}.png"
-                            
-                            # Download and save the image
-                            if hasattr(item, 'image') and hasattr(item.image, 'data'):
-                                filepath = save_image(item.image.data, filename)
-                                print(f"\n[Agent generated a chart - saved to: {filepath}]")
-                            else:
-                                print(f"\n[Agent generated an image]")
-                        elif item.type == 'file':
-                            print(f"\n[Agent created a file]")
+                        handled_output = True
 
-            # Check for files in the response and download them
-            file_id = ""
-            filename = ""
-            container_id = ""
+                    elif item_type == "image":
+                        image_count += 1
+                        filename = f"chart_{image_count}.png"
 
-            # Get the last message which should contain file citations
-            last_message = response.output[-1] 
-            if (
-                last_message.type == "message"
-                and last_message.content
-                and last_message.content[-1].type == "output_text"
-                and last_message.content[-1].annotations
-            ):
-                # Extract file information from response annotations
-                file_citation = last_message.content[-1].annotations[-1] 
-                if file_citation.type == "container_file_citation":
-                    file_id = file_citation.file_id
-                    filename = file_citation.filename
-                    container_id = file_citation.container_id
+                        if hasattr(item, "image") and hasattr(item.image, "data"):
+                            file_path = save_image(item.image.data, filename)
+                            print(f"\n[Agent generated a chart - saved to: {file_path}]")
+                        else:
+                            print("\n[Agent generated an image]")
+                        handled_output = True
 
-            # Download the generated file if available
-            if file_id and filename:
-                file_content = openai_client.containers.files.content.retrieve(file_id=file_id, container_id=container_id)
-                output_dir = Path("agent_outputs")
-                output_dir.mkdir(exist_ok=True)
-                file_path = output_dir / filename
-                with open(file_path, "wb") as f:
-                    f.write(file_content.read())
-                print(f"File downloaded successfully: {file_path}")
+                for file_path in downloaded_files.values():
+                    if file_path not in referenced_files:
+                        print(f"\n[Agent generated a file - saved to: {file_path}]")
+                        handled_output = True
+
+            if not handled_output and hasattr(response, "output_text") and response.output_text:
+                print(f"\nAgent: {response.output_text}\n")
 
     if __name__ == "__main__":
         main()
@@ -364,7 +429,7 @@ Now let's create a client application that interacts with your agent programmati
     AGENT_NAME=it-support-agent
     ```
 
-    **To get your project endpoint:** In VS Code, open the **AI Toolkit** extension, right-click on your active project, and select **Copy Endpoint**. If **Copy Endpoint** isn't available in your installed version of AI Toolkit, open the Microsoft Foundry portal, go to your project, and copy the project endpoint from the project overview page instead.
+    **To get your project endpoint:** In VS Code, open the **Foundry Toolkit** extension, right-click on your active project, and select **Copy Endpoint**. If **Copy Endpoint** isn't available in your installed version of Foundry Toolkit, open the Microsoft Foundry portal, go to your project, and copy the project endpoint from the project overview page instead.
 
 1. Save the `.env` file (**Ctrl+S** or **File > Save**).
 
@@ -373,6 +438,8 @@ Now let's create a client application that interacts with your agent programmati
 1. Install the required packages and login:
 
     ```bash
+    python -m venv labenv
+    .\labenv\Scripts\Activate.ps1
     pip install -r requirements.txt
     ```
 
@@ -407,6 +474,8 @@ When the agent starts, try these prompts to test different capabilities:
     ```
     Create a line chart showing memory usage trends over time
     ```
+
+    The application saves generated charts and cited files to the `agent_outputs` folder and prints the local file path in the terminal.
 
 4. Ask for statistical analysis:
 
