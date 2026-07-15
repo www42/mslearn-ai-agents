@@ -5,6 +5,7 @@ lab:
     level: 300
     duration: 40
     islab: true
+    status: 'released'
 ---
 
 # Deploy agents to Microsoft Teams and Copilot
@@ -220,6 +221,8 @@ After the agent package is prepared (this takes 1-2 minutes), you can deploy it 
 4. Select **Submit**
 
 5. Wait for publishing to complete (you'll see a success message)
+
+> **Alternative if direct publishing fails**: If the publish dialog returns a **400** error, and your Microsoft 365 account has permission to publish custom apps, open the **Download & customize** tab instead and follow the instructions.
 
 6. Your agent is now available in Teams! Find it under **Apps** → **Your agents**
 

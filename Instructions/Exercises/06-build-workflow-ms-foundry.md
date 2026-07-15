@@ -5,6 +5,7 @@ lab:
     level: 300
     duration: 45
     islab: true
+    status: 'released'
 ---
 
 # Build a workflow in Microsoft Foundry
@@ -354,7 +355,7 @@ For this exercise, you'll use starter code that will help you connect to your Fo
 
 1. When prompted, select **Open** to open the cloned repository in VS Code.
 
-1. Once the repository opens, select **File > Open Folder** and navigate to `mslearn-ai-agents/Labfiles/08-build-workflow-ms-foundry`, then choose **Select Folder**.
+1. Once the repository opens, select **File > Open Folder** and navigate to `mslearn-ai-agents/Labfiles/06-build-workflow-ms-foundry`, then choose **Select Folder**.
 
 1. In the Explorer pane, expand the **Python** folder to view the code files for this exercise. 
 
@@ -440,13 +441,15 @@ Now you're ready to create a project that invokes a workflow. Let's get started!
 5. Find the comment **Process events from the workflow run**, and add the following code to process the streamed output and print messages to the console:
 
     ```python
-    # Process events from the workflow run
+   # Process events from the workflow run
    for event in stream:
-        if (event.type == "response.completed"):
-            print("\nResponse completed:")
-            response = openai_client.responses.retrieve(event.response.id)
-            print(f"{response.output_text}")
+       if (event.type == "response.completed"):
+           print("\nResponse completed:")
+           response = openai_client.responses.retrieve(event.response.id)
+           print_workflow_output(response.output_text)
     ```
+
+    This code listens for the completion of the workflow response and then retrieves and prints the final output text to the console. The `print_workflow_output` function is a helper function defined in the code file that formats the output for easier reading.
 
 6. Find the comment **Clean up resources**, and enter the following code to delete the conversation when it is no longer required:
 
