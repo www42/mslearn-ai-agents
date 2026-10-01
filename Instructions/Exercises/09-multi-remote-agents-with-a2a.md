@@ -24,10 +24,10 @@ Before starting this exercise, ensure you have:
 
 - [Visual Studio Code](https://code.visualstudio.com/) installed on your local machine
 - An active [Azure subscription](https://azure.microsoft.com/free/)
-- [Python 3.13](https://www.python.org/downloads/) or later installed
+- [Python 3.13](https://www.python.org/downloads/) installed
 - [Git](https://git-scm.com/downloads) installed on your local machine
 
-> \* Python 3.13 is available, but some dependencies are not yet compiled for that release. The lab has been successfully tested with Python 3.13.12.
+> \* Python 3.14 isn't supported yet: some dependencies have no 3.14 build. This lab was tested with Python 3.13.12.
 
 ## Create a Foundry project with the Foundry Toolkit for VS Code extension
 
@@ -90,7 +90,7 @@ For this exercise, you'll use starter code that will help you connect to your Fo
 1. Enter the repository URL:
 
     ```
-    https://github.com/MicrosoftLearning/mslearn-ai-agents.git
+   https://github.com/MicrosoftLearning/mslearn-ai-agents.git
     ```
 
 1. Choose a location on your local machine to clone the repository.
@@ -106,20 +106,20 @@ For this exercise, you'll use starter code that will help you connect to your Fo
     The provided files include:
 
     ```output
-    python
-    ├── outline_agent/
-    │   ├── agent.py
-    │   ├── agent_executor.py
-    │   └── server.py
-    ├── routing_agent/
-    │   ├── agent.py
-    │   └── server.py
-    ├── title_agent/
-    │   ├── agent.py
-    |   ├── agent_executor.py
-    │   └── server.py
-    ├── client.py
-    └── run_all.py
+   python
+   ├── outline_agent/
+   │   ├── agent.py
+   │   ├── agent_executor.py
+   │   └── server.py
+   ├── routing_agent/
+   │   ├── agent.py
+   │   └── server.py
+   ├── title_agent/
+   │   ├── agent.py
+   |   ├── agent_executor.py
+   │   └── server.py
+   ├── client.py
+   └── run_all.py
     ```
 
     Each agent folder contains the Azure AI agent code and a server to host the agent. The **routing agent** is responsible for discovering and communicating with the **title** and **outline** agents. The **client** allows users to submit prompts to the routing agent. `run_all.py` launches all the servers and runs the client.
@@ -129,9 +129,9 @@ For this exercise, you'll use starter code that will help you connect to your Fo
 1. In the terminal, enter the following command to install the required Python packages in a virtual environment:
 
     ```
-    python -m venv labenv
-    .\labenv\Scripts\Activate.ps1
-    pip install -r requirements.txt
+   python -m venv labenv
+   .\labenv\Scripts\Activate.ps1
+   pip install -r requirements.txt
     ```
 
 1. Open the **.env** file, replace the **your_project_endpoint** placeholder with the endpoint for your project (copied from the project deployment resource in the Foundry Toolkit extension) and ensure that the MODEL_DEPLOYMENT_NAME variable is set to your model deployment name. Use **Ctrl+S** to save the file after making these changes.
@@ -382,11 +382,11 @@ In this task, you use the A2A protocol to enable the routing agent to send messa
 1. In the integrated terminal, enter the following commands to run the application:
 
     ```
-    az login
+   az login
     ```
 
     ```
-    python run_all.py
+   python run_all.py
     ```
 
     The application runs using the credentials for your authenticated Azure session to connect to your project and create and run the agent. You should see some output from each server as it starts.

@@ -24,10 +24,10 @@ Before starting this exercise, ensure you have:
 
 - [Visual Studio Code](https://code.visualstudio.com/) installed on your local machine
 - An active [Azure subscription](https://azure.microsoft.com/free/)
-- [Python 3.13](https://www.python.org/downloads/) or later installed
+- [Python 3.13](https://www.python.org/downloads/) installed
 - [Git](https://git-scm.com/downloads) installed on your local machine
 
-> \* Python 3.14 is available, but some dependencies are not yet compiled for that release. The lab has been successfully tested with Python 3.13.12.
+> \* Python 3.14 isn't supported yet: some dependencies have no 3.14 build. This lab was tested with Python 3.13.12.
 
 ## Create a Foundry project with the Foundry Toolkit for VS Code extension
 
@@ -92,7 +92,7 @@ For this exercise, you'll use starter code that will help you connect to your Fo
 1. Enter the repository URL:
 
     ```
-    https://github.com/MicrosoftLearning/mslearn-ai-agents.git
+   https://github.com/MicrosoftLearning/mslearn-ai-agents.git
     ```
 
 1. Choose a location on your local machine to clone the repository.
@@ -108,9 +108,9 @@ For this exercise, you'll use starter code that will help you connect to your Fo
 1. In the terminal, enter the following command to install the required Python packages in a virtual environment:
 
     ```
-    python -m venv labenv
-    .\labenv\Scripts\Activate.ps1
-    pip install -r requirements.txt
+   python -m venv labenv
+   .\labenv\Scripts\Activate.ps1
+   pip install -r requirements.txt
     ```
 
 1. Open the **.env** file, replace the **your_project_endpoint** placeholder with the endpoint for your project (copied from the project deployment resource in the Foundry Toolkit VS Code extension) and ensure that the MODEL_DEPLOYMENT_NAME variable is set to your model deployment name. Use **Ctrl+S** to save the file after making these changes.
@@ -153,7 +153,6 @@ Now you're ready to create an AI agent that uses MCP server tools to access exte
     ```python
    # Add references
    from azure.ai.projects import AIProjectClient
-   from azure.ai.projects.models import FunctionTool
    from azure.identity import DefaultAzureCredential
    from azure.ai.projects.models import PromptAgentDefinition, FunctionTool
    from openai.types.responses.response_input_param import FunctionCallOutput, ResponseInputParam
@@ -165,12 +164,12 @@ Now you're ready to create an AI agent that uses MCP server tools to access exte
 1. Find the comment **Connect to the project client** and add the following code:
 
     ```python
-    # Connect to the project client
-    with (
-        DefaultAzureCredential() as credential,
-        AIProjectClient(endpoint=project_endpoint, credential=credential) as project_client,
-        project_client.get_openai_client() as openai_client,
-    ):
+   # Connect to the project client
+   with (
+       DefaultAzureCredential() as credential,
+       AIProjectClient(endpoint=project_endpoint, credential=credential) as project_client,
+       project_client.get_openai_client() as openai_client,
+   ):
     ```
 
 ## Define the function tools
@@ -310,7 +309,9 @@ Now that you've created the agent with the function tools, you can send messages
     ```python
    # Create a list to hold function call outputs that will be sent back as input to the agent
    input_list: ResponseInputParam = []
-   ```
+    ```
+
+    This list is created inside the chat loop so that each turn starts with a fresh set of function call outputs.
 
 1. Find the comment **Send a prompt to the agent** and add the following code:
 
@@ -356,7 +357,7 @@ Now that you've created the agent with the function tools, you can send messages
                result = calculate_observation_cost(**json.loads(item.arguments))
            elif item.name == "generate_observation_report":
                result = generate_observation_report(**json.loads(item.arguments))
-                
+
            # Append the output text
            input_list.append(
                FunctionCallOutput(
@@ -375,8 +376,8 @@ Now that you've created the agent with the function tools, you can send messages
    # Send function call outputs back to the model and retrieve a response
    if input_list:
        response = openai_client.responses.create(
+           conversation=conversation.id,
            input=input_list,
-           previous_response_id=response.id,
            extra_body={"agent_reference": {"name": agent.name, "type": "agent_reference"}},
        )
    # Display the agent's response
@@ -385,12 +386,14 @@ Now that you've created the agent with the function tools, you can send messages
 
     This code checks if there are any function call outputs in the input list, and if so, it sends them back to the agent as input to retrieve an updated response. Finally, it prints the agent's response.
 
+    Note that the outputs are attached to the same **conversation**, so the function calls are resolved in conversation state and the agent's answer is saved to the chat history. Sending them back with `previous_response_id` instead would make the *next* message fail with *"No tool output found for function call"*.
+
 1. Find the comment **Delete the agent when done** and add the following code:
 
     ```python
-    # Delete the agent when done
-    project_client.agents.delete_version(agent_name=agent.name, agent_version=agent.version)
-    print("Deleted agent.")
+   # Delete the agent when done
+   project_client.agents.delete_version(agent_name=agent.name, agent_version=agent.version)
+   print("Deleted agent.")
     ```
 
 1. Review the complete code you've added to the file. It should now include sections that:
@@ -410,7 +413,7 @@ Now that you've created the agent with the function tools, you can send messages
 1. In the integrated terminal, enter the following command to run the application:
 
     ```
-    az login
+   az login
     ```
 
     ```
@@ -430,31 +433,31 @@ Now that you've created the agent with the function tools, you can send messages
     You should see some output similar to the following:
 
     ```output
-    AGENT: The next astronomical event you can observe from South America is the Jupiter-Venus Conjunction, taking place on May 1st.
-    The cost for 5 hours of premium telescope time at normal priority for this observation will be $1,875. 
+   AGENT: The next astronomical event you can observe from South America is the Jupiter-Venus Conjunction, taking place on May 1st.
+   The cost for 5 hours of premium telescope time at normal priority for this observation will be $1,875. 
     ```
 
 1. Enter a follow-up prompt to generate an observation report, such as:
 
     ```
-    Generate that information in a report for Bellows College.
+   Generate that information in a report for Bellows College.
     ```
 
     You should see a response similar to the following:
 
     ```output
-    AGENT: Here is your report for Bellows College:
+   AGENT: Here is your report for Bellows College:
 
-    - Next visible astronomical event: Jupiter-Venus Conjunction
-    - Date: May 1st
-    - Visible from: South America
-    - Observation details:
-        - Telescope tier: Premium
-        - Duration: 5 hours
-        - Priority: Normal
-    - Observation cost: $1,875
+   - Next visible astronomical event: Jupiter-Venus Conjunction
+   - Date: May 1st
+   - Visible from: South America
+   - Observation details:
+       - Telescope tier: Premium
+       - Duration: 5 hours
+       - Priority: Normal
+   - Observation cost: $1,875
 
-    A formal report has been generated for Bellows College.
+   A formal report has been generated for Bellows College.
     ```
 
     In the file explorer, you can see that a new file named `report-<event-type>.txt` has been created, which contains the generated report. You can open this file to view the contents of the report.
