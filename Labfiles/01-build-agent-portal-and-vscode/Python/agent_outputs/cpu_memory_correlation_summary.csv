@@ -1,2 +1,0 @@
-rows_analyzed,pearson_corr_cpu_mem,spearman_corr_cpu_mem,pct_cpu_over_80,pct_mem_over_80,pct_both_over_80,avg_memory_when_cpu_over_80,avg_memory_when_cpu_80_or_below,avg_cpu_when_mem_over_80,avg_cpu_when_mem_80_or_below
-80,0.9742,0.9893,23.75,10.0,10.0,78.53,52.25,95.25,51.44
